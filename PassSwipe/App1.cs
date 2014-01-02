@@ -36,20 +36,20 @@ namespace PassSwipe
 
         //new code
         public SpriteBatch spriteBatch;
-        private Texture2D processedTexture;
+        public Texture2D processedTexture;
         public bool isTouching;
         private SpriteFont font;
 
         // scale raw image back to full screen
         private float scale =
             (float)InteractiveSurface.DefaultInteractiveSurface.Width / InteractiveSurface.DefaultInteractiveSurface.Height;
-        private object syncLock = new object();
+        //private object syncLock = new object();
 
         //normalized raw images
-        public byte[] normalizedImage;
-        private ImageMetrics normalizedMetrics;
-        Vector2 spriteOrigin = new Vector2(0f, 0f);
-        public byte[] processedByteArray;
+        //public byte[] normalizedImage;
+        //private ImageMetrics returnedMetrics;
+        //Vector2 spriteOrigin = new Vector2(0f, 0f);
+        //public byte[] processedByteArray;
 
         //random extractable bits of data from a Contact
         double xpos = 0.0;
@@ -61,6 +61,9 @@ namespace PassSwipe
         
         Image<Gray, byte> canny;
         Image<Gray, byte> emguCvImage;
+
+        //potential new code once this becomes OO
+        SurfaceCapture capture;
     
         // application state: Activated, Previewed, Deactivated,
         // start in Activated state
@@ -169,14 +172,16 @@ namespace PassSwipe
             if (contactTarget != null)
                 return;
 
+            capture = new SurfaceCapture();
+
             // Create a target for surface input.
             contactTarget = new ContactTarget(Window.Handle, EventThreadChoice.OnBackgroundThread);
             contactTarget.EnableInput();
             contactTarget.EnableImage(ImageType.Normalized);
 
             // Register events
-            contactTarget.ContactAdded += OnContactStartRecord;
-            contactTarget.FrameReceived += OnContactRecordGesture;
+            //contactTarget.ContactAdded += OnContactStartRecord;
+            contactTarget.FrameReceived += capture.OnContactRecordGesture;
         }
 
         private void OnContactStartRecord(object sender, ContactEventArgs e)
@@ -184,12 +189,15 @@ namespace PassSwipe
             isTouching = true;
         }
 
+        /*
         //SurfaceImg to EmguCV Img
         private Image<Gray, byte> CreateEmguCvImage(byte[] image, ImageMetrics metrics)
         {
             return new Image<Gray, byte>(metrics.Width, metrics.Height) { Bytes = image };
         }
+        */
 
+        /*
         private void OnContactRecordGesture(object sender, FrameReceivedEventArgs e)
         { 
             if (isTouching)
@@ -221,7 +229,9 @@ namespace PassSwipe
             }
             
         }
+        */
 
+        /*
         private byte[] processImage(Image<Gray, byte> gestureImg)
         {
             canny = gestureImg;
@@ -229,6 +239,7 @@ namespace PassSwipe
             canny = canny.Canny(new Gray(75), new Gray(120));
             return canny.Bytes;
         }
+        */
 
         private void DrawText()
         {
@@ -278,36 +289,44 @@ namespace PassSwipe
                 orientation = contacts[0].Orientation;
                 timestamp = contacts[0].FrameTimestamp;
 
-                if (normalizedMetrics != null)
+                if (capture.returnMetrics() != null)
                 {
-                    if (processedTexture == null)
+                    if (capture.processedTexture == null)
                     {
-                        processedByteArray = new byte[normalizedMetrics.Width * normalizedMetrics.Height];
+
+                        capture.processedByteArray = new byte[capture.returnMetrics().Width * capture.returnMetrics().Height];
 
                         processedTexture = new Texture2D(graphics.GraphicsDevice,
-                                                              normalizedMetrics.Width,
-                                                              normalizedMetrics.Height,
+                                                              capture.returnMetrics().Width,
+                                                              capture.returnMetrics().Height,
                                                               1,
                                                               TextureUsage.AutoGenerateMipMap,
                             //TextureUsage.AutoGenerateMipMap,
                                                               SurfaceFormat.Luminance8);
-                    }
-                    graphics.GraphicsDevice.Textures[0] = null;
 
+                        graphics.GraphicsDevice.Textures[0] = null;
+                    }
+                    else
+                    {
+                        capture.Update(gameTime);
+                    }
+
+                    /*
                     processedTexture.SetData<Byte>(processedByteArray,
                                                     0,
                                                     normalizedMetrics.Width * normalizedMetrics.Height,
                                                     SetDataOptions.Discard
                                                     );
                     //InsertSpritesAtContactPositions(contacts);
+                     */
+                    }
+
                 }
 
-            }
-          
-             
-            // TODO: Add your update logic here
-                
-            base.Update(gameTime);
+
+                // TODO: Add your update logic here
+
+                base.Update(gameTime);
         }
 
 
@@ -331,6 +350,8 @@ namespace PassSwipe
             spriteBatch.Begin();
             if (processedTexture != null)
             {
+                capture.Draw(this.spriteBatch);
+                /*
                 // Adds the rawimage sprite to Spritebatch for drawing.
                 spriteBatch.Draw(processedTexture, 
                                 spriteOrigin,  
@@ -341,6 +362,7 @@ namespace PassSwipe
                                 scale, 
                                 SpriteEffects.FlipVertically, 
                                 0f);
+                 */
             }
             DrawText();
 
