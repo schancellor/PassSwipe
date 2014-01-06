@@ -170,10 +170,11 @@ namespace PassSwipe
             // Register events
             contactTarget.ContactAdded += capture.OnContactStartRecord;
             contactTarget.FrameReceived += capture.OnContactRecordGesture;
+            contactTarget.ContactRemoved += capture.OffContactStopRecord;
         }
 
         //Draw method that adds contact analytics to the screen
-        private void DrawText()
+        private void DrawText(GameTime gameTime)
         {
             spriteBatch.DrawString(font, "X pos: " + xpos, new Vector2(20, 45), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Y pos: " + ypos, new Vector2(20, 85), Microsoft.Xna.Framework.Graphics.Color.White);
@@ -182,6 +183,7 @@ namespace PassSwipe
             spriteBatch.DrawString(font, "Minor Axis: " + minorAxis, new Vector2(20, 155), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Orientation: " + orientation, new Vector2(20, 185), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Timestamp: " + timestamp, new Vector2(20, 215), Microsoft.Xna.Framework.Graphics.Color.White);
+            spriteBatch.DrawString(font, "Game time: " + capture.totalTimeElapsed, new Vector2(20, 245), Microsoft.Xna.Framework.Graphics.Color.White);
         }
         /// <summary>
         /// Load your graphics content.
@@ -271,7 +273,7 @@ namespace PassSwipe
             capture.Draw(this.spriteBatch);
             
             //Draw text analytics
-            DrawText();
+            DrawText(gameTime);
             
             spriteBatch.End();
 
