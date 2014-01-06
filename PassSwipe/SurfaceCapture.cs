@@ -41,15 +41,22 @@ namespace PassSwipe
         DateTime endRecordTime;
         public TimeSpan totalTimeElapsed = new TimeSpan(0,0,0,0,0);
 
+        //method to start grabbing contact data/feature data
         public void OnContactStartRecord(object sender, ContactEventArgs e)
         {
             isTouching = true;
             startRecordTime = System.DateTime.Now;
         }
 
+        //method to stop grabbing data, calculate feature data
         public void OffContactStopRecord(object sender, ContactEventArgs e)
         {
             endRecordTime = System.DateTime.Now;
+
+            if ((startRecordTime != null) && (endRecordTime != null))
+            {
+                totalTimeElapsed = endRecordTime.Subtract(startRecordTime);
+            }
         }
 
         public void OnContactRecordGesture(object sender, FrameReceivedEventArgs e)
@@ -106,11 +113,6 @@ namespace PassSwipe
 
         public void Update(GameTime gameTime)
         {
-            if ((startRecordTime != null) && (endRecordTime != null))
-            {
-                totalTimeElapsed = endRecordTime - startRecordTime;
-            }
-
             processedTexture.SetData<Byte>(this.processedByteArray,
                                             0,
                                             normalizedMetrics.Width * normalizedMetrics.Height,

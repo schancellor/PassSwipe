@@ -49,7 +49,7 @@ namespace PassSwipe
         float majorAxis = 0.0f;
         float minorAxis = 0.0f;
         float orientation = 0.0f;
-        Int64 timestamp = 0;
+        //Int64 timestamp = 0;
 
         private SpriteFont font;
 
@@ -182,8 +182,7 @@ namespace PassSwipe
             spriteBatch.DrawString(font, "Major Axis: " + majorAxis, new Vector2(20, 115), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Minor Axis: " + minorAxis, new Vector2(20, 155), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Orientation: " + orientation, new Vector2(20, 185), Microsoft.Xna.Framework.Graphics.Color.White);
-            spriteBatch.DrawString(font, "Timestamp: " + timestamp, new Vector2(20, 215), Microsoft.Xna.Framework.Graphics.Color.White);
-            spriteBatch.DrawString(font, "Game time: " + capture.totalTimeElapsed, new Vector2(20, 245), Microsoft.Xna.Framework.Graphics.Color.White);
+            spriteBatch.DrawString(font, "Total Gesture Time: " + capture.totalTimeElapsed.TotalMilliseconds, new Vector2(20, 245), Microsoft.Xna.Framework.Graphics.Color.White);
         }
         /// <summary>
         /// Load your graphics content.
@@ -221,7 +220,6 @@ namespace PassSwipe
                 majorAxis = contacts[0].MajorAxis;
                 minorAxis = contacts[0].MinorAxis;
                 orientation = contacts[0].Orientation;
-                timestamp = contacts[0].FrameTimestamp;
 
                 if (capture.returnMetrics() != null)
                 {
