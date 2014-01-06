@@ -49,7 +49,10 @@ namespace PassSwipe
         float majorAxis = 0.0f;
         float minorAxis = 0.0f;
         float orientation = 0.0f;
+        double averageXValue = 0.0;
         //Int64 timestamp = 0;
+
+        public List<SurfaceTouch> contactList = new List<SurfaceTouch>();
 
         private SpriteFont font;
 
@@ -215,6 +218,11 @@ namespace PassSwipe
 
             if (contacts.Count > 0)
             {
+                contactList.Add(new SurfaceTouch(contacts[0].CenterX, 
+                                                 contacts[0].CenterY, 
+                                                 contacts[0].MajorAxis, 
+                                                 contacts[0].MinorAxis, 
+                                                 contacts[0].Orientation));
                 xpos = contacts[0].CenterX;
                 ypos = contacts[0].CenterY;
                 majorAxis = contacts[0].MajorAxis;
