@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Net;
+using Microsoft.Xna.Framework.Storage;
 using Microsoft.Surface;
 using Microsoft.Surface.Core;
 using Emgu.CV;
@@ -13,7 +19,7 @@ using Emgu.CV.Structure;
 
 namespace PassSwipe
 {
-    class SurfaceCapture
+    class SurfaceCapture : App1
     {
         private float scale =
            (float)InteractiveSurface.DefaultInteractiveSurface.Width / InteractiveSurface.DefaultInteractiveSurface.Height;
@@ -25,44 +31,45 @@ namespace PassSwipe
         private ImageMetrics normalizedMetrics;
         Vector2 spriteOrigin = new Vector2(0f, 0f);
         public byte[] processedByteArray;
-
-        //random extractable bits of data from a Contact
-        double xpos = 0.0;
-        double ypos = 0.0;
-        float majorAxis = 0.0f;
-        float minorAxis = 0.0f;
-        float orientation = 0.0f;
-        Int64 timestamp = 0;
+        bool isTouching;
 
         Image<Gray, byte> canny;
         Image<Gray, byte> emguCvImage;
 
+        public void OnContactStartRecord(object sender, ContactEventArgs e)
+        {
+            isTouching = true;
+        }
+
         public void OnContactRecordGesture(object sender, FrameReceivedEventArgs e)
         {
-            if (normalizedImage == null)
+            if (isTouching)
             {
-                bool testVar = e.TryGetRawImage(
-                    ImageType.Normalized,
-                    0, 0,
-                    InteractiveSurface.DefaultInteractiveSurface.Width,
-                    InteractiveSurface.DefaultInteractiveSurface.Height,
-                    out normalizedImage,
-                    out normalizedMetrics);
-            }
-            else //updates raw image data
-            {
-                e.UpdateRawImage(
-                    ImageType.Normalized,
-                    normalizedImage,
-                    0, 0,
-                    InteractiveSurface.DefaultInteractiveSurface.Width,
-                    InteractiveSurface.DefaultInteractiveSurface.Height);
-            }
+                if (normalizedImage == null)
+                {
+                    e.TryGetRawImage(
+                        ImageType.Normalized,
+                        0, 0,
+                        InteractiveSurface.DefaultInteractiveSurface.Width,
+                        InteractiveSurface.DefaultInteractiveSurface.Height,
+                        out normalizedImage,
+                        out normalizedMetrics);
+                }
+                else //updates raw image data
+                {
+                    e.UpdateRawImage(
+                        ImageType.Normalized,
+                        normalizedImage,
+                        0, 0,
+                        InteractiveSurface.DefaultInteractiveSurface.Width,
+                        InteractiveSurface.DefaultInteractiveSurface.Height);
+                }
 
-            //create img
-            emguCvImage = CreateEmguCvImage(normalizedImage, normalizedMetrics);
+                //create img
+                emguCvImage = CreateEmguCvImage(normalizedImage, normalizedMetrics);
 
-            processedByteArray = processImage(emguCvImage);
+                processedByteArray = processImage(emguCvImage);
+            }
         }
 
         //basic image processing algorithm
