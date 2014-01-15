@@ -25,6 +25,7 @@ namespace PassSwipe
            (float)InteractiveSurface.DefaultInteractiveSurface.Width / InteractiveSurface.DefaultInteractiveSurface.Height;
 
         public Texture2D processedTexture;
+        public FeatureManager fm;
 
         //normalized raw images
         public byte[] normalizedImage;
@@ -95,7 +96,7 @@ namespace PassSwipe
         {
             canny = gestureImg;
             canny._ThresholdBinary(new Gray(75), new Gray(255));
-            canny = canny.Canny(new Gray(75), new Gray(120));
+            canny = canny.Canny(new Gray(125), new Gray(120));
             return canny.Bytes;
         }
 

@@ -30,17 +30,5 @@ namespace PassSwipe
             orientation = pOrientaion;
         }
 
-        public float getEccentricity()
-        {
-            if (majorAxis > minorAxis)
-            {
-                return majorAxis / minorAxis;
-            }
-
-            else
-            {
-                return minorAxis / majorAxis;
-            }
-        }
     }
 }
