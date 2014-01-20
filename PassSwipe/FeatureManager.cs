@@ -7,7 +7,9 @@ namespace PassSwipe
 {
     class FeatureManager
     {
-        public List<SurfaceTouch> contactList = new List<SurfaceTouch>();
+        public List<SurfaceTouch> touchList = new List<SurfaceTouch>();
+
+        public float averageVelocity = 0.0f;
 
         //basic constructor
         public FeatureManager()
@@ -17,13 +19,9 @@ namespace PassSwipe
 
         public List<SurfaceTouch> getTouchList()
         {
-            return contactList;
+            return touchList;
         }
 
-        public void addToTouchList(SurfaceTouch _st)
-        {
-            contactList.Add(_st);
-        }
         //method: calculate time
 
         //method: calculate delta change in eccentricity

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-//using System.Linq;
+using System.Linq;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -49,8 +49,8 @@ namespace PassSwipe
         float majorAxis = 0.0f;
         float minorAxis = 0.0f;
         float orientation = 0.0f;
-        double averageXValue = 0.0;
-        //Int64 timestamp = 0;
+
+        FeatureManager touchManager = new FeatureManager();
 
         private SpriteFont font;
 
@@ -212,47 +212,63 @@ namespace PassSwipe
         {
             // TODO: Process contacts
             // Use the following code to get the state of all current contacts.
-            ReadOnlyContactCollection contacts = contactTarget.GetState();
+            ReadOnlyContactCollection contacts = this.contactTarget.GetState();
 
-            if (contacts.Count > 0)
+            List<Contact> fingerContacts = new List<Contact>();
+            for (int i = 0; i < contacts.Count; i++)
             {
-                /*contactList.Add(new SurfaceTouch(contacts[0].CenterX, 
-                                                 contacts[0].CenterY, 
-                                                 contacts[0].MajorAxis, 
-                                                 contacts[0].MinorAxis, 
-                                                 contacts[0].Orientation));*/
-                xpos = contacts[0].CenterX;
-                ypos = contacts[0].CenterY;
-                majorAxis = contacts[0].MajorAxis;
-                minorAxis = contacts[0].MinorAxis;
-                orientation = contacts[0].Orientation;
-
-                if (capture.returnMetrics() != null)
+                if (contacts[i].IsFingerRecognized)
                 {
-                    if (capture.processedTexture == null)
-                    {
-                        capture.processedByteArray = new byte[capture.returnMetrics().Width * capture.returnMetrics().Height];
+                    fingerContacts.Add(contacts[i]);
+                }
+            }
 
-                        capture.processedTexture = new Texture2D(graphics.GraphicsDevice,
-                                                              capture.returnMetrics().Width,
-                                                              capture.returnMetrics().Height,
-                                                              1,
-                                                              TextureUsage.AutoGenerateMipMap,
-                                                              SurfaceFormat.Luminance8);
+            if (fingerContacts.Count > 0)
+            {
+                Contact con = fingerContacts.Last();
 
-                        graphics.GraphicsDevice.Textures[0] = null;
-                    }
+                //exclude all blobs
+                if (con.IsFingerRecognized)
+                {
+                    xpos = con.CenterX;
+                    ypos = con.CenterY;
+                    majorAxis = con.MajorAxis;
+                    minorAxis = con.MinorAxis;
+                    orientation = con.Orientation;
 
-                    else
-                    {
-                        capture.Update(gameTime);
-                    }
+                    touchManager.touchList.Add(new SurfaceTouch(con.CenterX,
+                                                                con.CenterY,
+                                                                con.MajorAxis,
+                                                                con.MinorAxis,
+                                                                con.Orientation));
+
+                }
+            }
+
+            if (capture.returnMetrics() != null)
+            {
+                if (capture.processedTexture == null)
+                {
+                    capture.processedByteArray = new byte[capture.returnMetrics().Width * capture.returnMetrics().Height];
+
+                    capture.processedTexture = new Texture2D(graphics.GraphicsDevice,
+                                                          capture.returnMetrics().Width,
+                                                          capture.returnMetrics().Height,
+                                                          1,
+                                                          TextureUsage.AutoGenerateMipMap,
+                                                          SurfaceFormat.Luminance8);
+
+                    graphics.GraphicsDevice.Textures[0] = null;
+                }
+
+                else
+                {
+                    capture.Update(gameTime);
                 }
             }
 
             base.Update(gameTime);
         }
-
 
         /// <summary>
         /// This is called when the app should draw itself.
