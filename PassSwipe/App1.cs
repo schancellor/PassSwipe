@@ -258,7 +258,7 @@ namespace PassSwipe
                                                           TextureUsage.AutoGenerateMipMap,
                                                           SurfaceFormat.Luminance8);
 
-                    graphics.GraphicsDevice.Textures[0] = null;
+                    
                 }
 
                 else
@@ -284,6 +284,8 @@ namespace PassSwipe
                 ApplicationLauncher.SignalApplicationLoadComplete();
                 applicationLoadCompleteSignalled = true;
             }
+
+            graphics.GraphicsDevice.Textures[0] = null;
 
             //TODO: Rotate the UI based on the value of screenTransform here if desired
 
