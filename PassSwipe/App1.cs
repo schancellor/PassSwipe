@@ -28,12 +28,11 @@ namespace PassSwipe
     public class App1 : Microsoft.Xna.Framework.Game
     {
         protected readonly GraphicsDeviceManager graphics;
-        public ContactTarget contactTarget;
+        private ContactTarget contactTarget;
         private UserOrientation currentOrientation = UserOrientation.Bottom;
         private Microsoft.Xna.Framework.Graphics.Color backgroundColor = new Microsoft.Xna.Framework.Graphics.Color(81, 81, 81);
         private bool applicationLoadCompleteSignalled;
         private Matrix screenTransform = Matrix.Identity;
-        public SpriteFont font;
 
         //initialization code for Surface image grabbing
         public SpriteBatch spriteBatch;
@@ -51,7 +50,9 @@ namespace PassSwipe
         float minorAxis = 0.0f;
         float orientation = 0.0f;
 
-        public static FeatureManager touchManager = new FeatureManager();
+        FeatureManager touchManager = new FeatureManager();
+
+        private SpriteFont font;
 
         // application state: Activated, Previewed, Deactivated,
         // start in Activated state
@@ -172,7 +173,18 @@ namespace PassSwipe
             contactTarget.FrameReceived += capture.OnContactRecordGesture;
             contactTarget.ContactRemoved += capture.OffContactStopRecord;
         }
-        
+
+        //Draw method that adds contact analytics to the screen
+        private void DrawText(GameTime gameTime)
+        {
+            spriteBatch.DrawString(font, "X pos: " + xpos, new Vector2(20, 45), Microsoft.Xna.Framework.Graphics.Color.White);
+            spriteBatch.DrawString(font, "Y pos: " + ypos, new Vector2(20, 85), Microsoft.Xna.Framework.Graphics.Color.White);
+
+            spriteBatch.DrawString(font, "Major Axis: " + majorAxis, new Vector2(20, 115), Microsoft.Xna.Framework.Graphics.Color.White);
+            spriteBatch.DrawString(font, "Minor Axis: " + minorAxis, new Vector2(20, 155), Microsoft.Xna.Framework.Graphics.Color.White);
+            spriteBatch.DrawString(font, "Orientation: " + orientation, new Vector2(20, 185), Microsoft.Xna.Framework.Graphics.Color.White);
+            spriteBatch.DrawString(font, "Total Gesture Time: " + capture.totalTimeElapsed.TotalMilliseconds, new Vector2(20, 245), Microsoft.Xna.Framework.Graphics.Color.White);
+        }
         /// <summary>
         /// Load your graphics content.
         /// </summary>
@@ -189,19 +201,6 @@ namespace PassSwipe
         protected override void UnloadContent()
         {
             Content.Unload();
-        }
-
-
-        //Draw method that adds contact analytics to the screen
-        public void DrawText(GameTime gameTime)
-        {
-            spriteBatch.DrawString(font, "X pos: " + capture.xpos, new Vector2(20, 45), Microsoft.Xna.Framework.Graphics.Color.White);
-            spriteBatch.DrawString(font, "Y pos: " + capture.ypos, new Vector2(20, 85), Microsoft.Xna.Framework.Graphics.Color.White);
-
-            spriteBatch.DrawString(font, "Major Axis: " + capture.majorAxis, new Vector2(20, 115), Microsoft.Xna.Framework.Graphics.Color.White);
-            spriteBatch.DrawString(font, "Minor Axis: " + capture.minorAxis, new Vector2(20, 155), Microsoft.Xna.Framework.Graphics.Color.White);
-            spriteBatch.DrawString(font, "Orientation: " + capture.orientation, new Vector2(20, 185), Microsoft.Xna.Framework.Graphics.Color.White);
-            //spriteBatch.DrawString(font, "Total Gesture Time: " + totalTimeElapsed.TotalMilliseconds, new Vector2(20, 245), Microsoft.Xna.Framework.Graphics.Color.White);
         }
 
         /// <summary>
@@ -237,11 +236,12 @@ namespace PassSwipe
                     minorAxis = con.MinorAxis;
                     orientation = con.Orientation;
 
-                    touchManager.Add(new SurfaceTouch(con.CenterX,
-                                                      con.CenterY,
-                                                      con.MajorAxis,
-                                                      con.MinorAxis,
-                                                      con.Orientation));
+                    touchManager.touchList.Add(new SurfaceTouch(con.CenterX,
+                                                                con.CenterY,
+                                                                con.MajorAxis,
+                                                                con.MinorAxis,
+                                                                con.Orientation));
+
                 }
             }
 
@@ -265,8 +265,6 @@ namespace PassSwipe
                 {
                     capture.Update(gameTime);
                 }
-
-                
             }
 
             base.Update(gameTime);
@@ -294,12 +292,13 @@ namespace PassSwipe
             //Draw screen capture of touch dot (located in SurfaceCapture class)
             capture.Draw(this.spriteBatch);
             
+            //Draw text analytics
+            DrawText(gameTime);
+            
             spriteBatch.End();
 
             //TODO: Add your drawing code here
             //TODO: Avoid any expensive logic if application is neither active nor previewed
-
-            //capture.DrawText(gameTime);
 
             base.Draw(gameTime);
         }

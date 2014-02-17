@@ -30,9 +30,5 @@ namespace PassSwipe
             orientation = pOrientaion;
         }
 
-        public double getXPos(){
-            return xPosition;
-        }
-
     }
 }

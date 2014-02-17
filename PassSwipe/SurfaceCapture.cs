@@ -16,18 +16,16 @@ using Microsoft.Surface.Core;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
-using System.IO;
 
 namespace PassSwipe
 {
-    public class SurfaceCapture : App1
+    class SurfaceCapture : App1
     {
         private float scale =
            (float)InteractiveSurface.DefaultInteractiveSurface.Width / InteractiveSurface.DefaultInteractiveSurface.Height;
 
         public Texture2D processedTexture;
         public FeatureManager fm;
-        
 
         //normalized raw images
         public byte[] normalizedImage;
@@ -40,20 +38,9 @@ namespace PassSwipe
         Image<Gray, byte> emguCvImage;
 
         //feature sets
-        double xpos = 0.0;
-        double ypos = 0.0;
-        float majorAxis = 0.0f;
-        float minorAxis = 0.0f;
-        float orientation = 0.0f;
-
         DateTime startRecordTime;
         DateTime endRecordTime;
         public TimeSpan totalTimeElapsed = new TimeSpan(0,0,0,0,0);
-
-        public ImageMetrics returnMetrics()
-        {
-            return normalizedMetrics;
-        }
 
         //method to start grabbing contact data/feature data
         public void OnContactStartRecord(object sender, ContactEventArgs e)
@@ -71,8 +58,6 @@ namespace PassSwipe
             {
                 totalTimeElapsed = endRecordTime.Subtract(startRecordTime);
             }
-
-            App1.touchManager.writeToFile();
         }
 
         public void OnContactRecordGesture(object sender, FrameReceivedEventArgs e)
@@ -120,6 +105,11 @@ namespace PassSwipe
         {
             //BUG 1-2-14: This returns with a NullReferenceException 75% of the time, but 25% of the time it runs. What?
             return new Image<Gray, byte>(metrics.Width, metrics.Height) { Bytes = image };
+        }
+
+        public ImageMetrics returnMetrics()
+        {
+            return normalizedMetrics;
         }
 
         public void Update(GameTime gameTime)
