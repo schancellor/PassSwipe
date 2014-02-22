@@ -36,9 +36,15 @@ namespace PassSwipe
         Image<Gray, byte> canny;
         Image<Gray, byte> emguCvImage;
 
+        //feature sets
+        DateTime startRecordTime;
+        DateTime endRecordTime;
+        public TimeSpan totalTimeElapsed = new TimeSpan(0, 0, 0, 0, 0);
+
         public void OnContactStartRecord(object sender, ContactEventArgs e)
         {
             isTouching = true;
+            startRecordTime = System.DateTime.Now;
         }
 
         public void OnContactRecordGesture(object sender, FrameReceivedEventArgs e)
@@ -69,6 +75,16 @@ namespace PassSwipe
                 emguCvImage = CreateEmguCvImage(normalizedImage, normalizedMetrics);
 
                 processedByteArray = processImage(emguCvImage);
+            }
+        }
+
+        public void OffContactStopRecord(object sender, ContactEventArgs e)
+        {
+            endRecordTime = System.DateTime.Now;
+
+            if ((startRecordTime != null) && (endRecordTime != null))
+            {
+                totalTimeElapsed = endRecordTime.Subtract(startRecordTime);
             }
         }
 
