@@ -19,6 +19,7 @@ using Microsoft.Xna.Framework.Storage;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using System.Text;
 
 namespace PassSwipe
 {
@@ -49,9 +50,10 @@ namespace PassSwipe
         float majorAxis = 0.0f;
         float minorAxis = 0.0f;
         float orientation = 0.0f;
-        Int64 timestamp = 0;
 
         private SpriteFont font;
+
+        List<SurfaceTouch> touchManager = new List<SurfaceTouch>();
 
         // application state: Activated, Previewed, Deactivated,
         // start in Activated state
@@ -182,9 +184,36 @@ namespace PassSwipe
             spriteBatch.DrawString(font, "Major Axis: " + majorAxis, new Vector2(20, 115), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Minor Axis: " + minorAxis, new Vector2(20, 155), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Orientation: " + orientation, new Vector2(20, 185), Microsoft.Xna.Framework.Graphics.Color.White);
-            //spriteBatch.DrawString(font, "Timestamp: " + timestamp, new Vector2(20, 215), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Total Gesture Time: " + capture.totalTimeElapsed.TotalMilliseconds, new Vector2(20, 245), Microsoft.Xna.Framework.Graphics.Color.White);
         }
+
+        public void writeToCSV()
+        {
+            string filePath = @"C:\Users\faculty\Desktop\text.csv";  
+            string delimiter = ",";
+  	    
+            //key for the output
+            // UserID, xPosition, yPosition, majorAxis, minorAxis, orientation, timestamp (in milliseconds)
+            string[] output = {"1",
+                               "test",
+                               xpos.ToString(), 
+                               ypos.ToString(), 
+                               majorAxis.ToString(),
+                               minorAxis.ToString(),
+                               orientation.ToString()
+                               };
+  
+            int length = output.GetLength(0);  
+            StringBuilder sb = new StringBuilder();
+
+            for (int index = 0; index < length; index++)
+            {
+                sb.AppendLine(string.Join(delimiter, output));
+            }
+ 
+            File.AppendAllText(filePath, sb.ToString()); 
+        }
+
         /// <summary>
         /// Load your graphics content.
         /// </summary>
@@ -221,7 +250,13 @@ namespace PassSwipe
                 majorAxis = contacts[0].MajorAxis;
                 minorAxis = contacts[0].MinorAxis;
                 orientation = contacts[0].Orientation;
-                timestamp = contacts[0].FrameTimestamp;
+
+                touchManager.Add(new SurfaceTouch(xpos, 
+                                                  ypos, 
+                                                  majorAxis, 
+                                                  minorAxis, 
+                                                  orientation));
+
 
                 if (capture.returnMetrics() != null)
                 {

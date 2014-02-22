@@ -86,6 +86,7 @@ namespace PassSwipe
             {
                 totalTimeElapsed = endRecordTime.Subtract(startRecordTime);
             }
+
         }
 
         //basic image processing algorithm

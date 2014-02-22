@@ -132,6 +132,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="App1.cs" />
     <Compile Include="SurfaceCapture.cs" />
+    <Compile Include="SurfaceTouch.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="GameThumbnail.png" />
