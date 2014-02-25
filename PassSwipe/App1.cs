@@ -26,6 +26,7 @@ namespace PassSwipe
     /// <summary>
     /// This is the main type for your application.
     /// </summary>
+    /// 
     public class App1 : Microsoft.Xna.Framework.Game
     {
         protected readonly GraphicsDeviceManager graphics;
@@ -53,7 +54,13 @@ namespace PassSwipe
 
         private SpriteFont font;
 
-        List<SurfaceTouch> touchManager = new List<SurfaceTouch>();
+        private List<SurfaceTouch> privateTouchMan = new List<SurfaceTouch>();
+
+        public List<SurfaceTouch> touchManager
+        {
+            get { return privateTouchMan; }
+            set { privateTouchMan = value; }
+        }
 
         // application state: Activated, Previewed, Deactivated,
         // start in Activated state
@@ -191,29 +198,36 @@ namespace PassSwipe
         {
             string filePath = @"C:\Users\faculty\Desktop\text.csv";  
             string delimiter = ",";
-  	    
-            //key for the output
-            // UserID, xPosition, yPosition, majorAxis, minorAxis, orientation, timestamp (in milliseconds)
-            string[] output = {"1",
-                               "test",
-                               xpos.ToString(), 
-                               ypos.ToString(), 
-                               majorAxis.ToString(),
-                               minorAxis.ToString(),
-                               orientation.ToString()
-                               };
-  
-            int length = output.GetLength(0);  
+
             StringBuilder sb = new StringBuilder();
 
-            for (int index = 0; index < length; index++)
+            //for each line of the touchList
+            //take each object and push it into a string
+            //regx the string with commas
+            //add string to csv
+            //sb.AppendLine(string.Join(delimiter, output));
+            for (int i = 0; i > this.touchManager.Count; i++)
             {
-                sb.AppendLine(string.Join(delimiter, output));
+                string[] strOut = {
+                                    (touchManager[i].xPosition).ToString()
+                                  };
+                sb.AppendLine(string.Join(delimiter, strOut));
             }
- 
-            File.AppendAllText(filePath, sb.ToString()); 
-        }
+                
+            File.AppendAllText(filePath, sb.ToString());
 
+            //key for the output
+            // UserID, xPosition, yPosition, majorAxis, minorAxis, orientation, timestamp (in milliseconds)
+            /* string[] output = {"1",
+                              "test",
+                              xpos.ToString(), 
+                              ypos.ToString(), 
+                              majorAxis.ToString(),
+                              minorAxis.ToString(),
+                              orientation.ToString()
+                              }; */
+            }
+            
         /// <summary>
         /// Load your graphics content.
         /// </summary>
