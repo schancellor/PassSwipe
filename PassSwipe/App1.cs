@@ -40,11 +40,19 @@ namespace PassSwipe
         public SpriteBatch spriteBatch;
         SurfaceCapture capture;
         public Texture2D processedTexture;
+        private SpriteFont font;
 
         // scale raw image back to full screen
         private float scale =
             (float)InteractiveSurface.DefaultInteractiveSurface.Width / InteractiveSurface.DefaultInteractiveSurface.Height;
 
+        //normalized raw image data
+        public byte[] normalizedImage;
+        private ImageMetrics normalizedMetrics;
+        Vector2 spriteOrigin = new Vector2(0f, 0f);
+        public byte[] processedByteArray;
+        bool isTouching;
+        
         //random extractable bits of data from a Contact - currently on text output
         double xpos = 0.0;
         double ypos = 0.0;
@@ -52,15 +60,7 @@ namespace PassSwipe
         float minorAxis = 0.0f;
         float orientation = 0.0f;
 
-        private SpriteFont font;
-
-        private List<SurfaceTouch> privateTouchMan = new List<SurfaceTouch>();
-
-        public List<SurfaceTouch> touchManager
-        {
-            get { return privateTouchMan; }
-            set { privateTouchMan = value; }
-        }
+        private List<SurfaceTouch> touchManager = new List<SurfaceTouch>();
 
         // application state: Activated, Previewed, Deactivated,
         // start in Activated state
@@ -82,6 +82,11 @@ namespace PassSwipe
         protected ContactTarget ContactTarget
         {
             get { return contactTarget; }
+        }
+
+        public ImageMetrics returnMetrics()
+        {
+            return normalizedMetrics;
         }
 
         /// <summary>
@@ -177,9 +182,53 @@ namespace PassSwipe
             contactTarget.EnableImage(ImageType.Normalized);
 
             // Register events
-            contactTarget.ContactAdded += capture.OnContactStartRecord;
-            contactTarget.FrameReceived += capture.OnContactRecordGesture;
-            contactTarget.ContactRemoved += capture.OffContactStopRecord;
+            contactTarget.ContactAdded += OnContactStartRecord;
+            contactTarget.FrameReceived += OnContactRecordGesture;
+            contactTarget.ContactRemoved += OffContactStopRecord;
+        }
+
+        public void OnContactStartRecord(object sender, ContactEventArgs e)
+        {
+            isTouching = true;
+            capture.startRecordTime = System.DateTime.Now;
+
+            isTouching = true;
+            capture.OnContactHelper();
+        }
+
+        public void OnContactRecordGesture(object sender, FrameReceivedEventArgs e)
+        {
+            if (isTouching)
+            {
+                if (normalizedImage == null)
+                {
+                    e.TryGetRawImage(
+                        ImageType.Normalized,
+                        0, 0,
+                        InteractiveSurface.DefaultInteractiveSurface.Width,
+                        InteractiveSurface.DefaultInteractiveSurface.Height,
+                        out normalizedImage,
+                        out normalizedMetrics);
+                }
+                else //updates raw image data
+                {
+                    e.UpdateRawImage(
+                        ImageType.Normalized,
+                        normalizedImage,
+                        0, 0,
+                        InteractiveSurface.DefaultInteractiveSurface.Width,
+                        InteractiveSurface.DefaultInteractiveSurface.Height);
+                }
+
+                capture.OnContactRecordHelper(normalizedImage, normalizedMetrics);
+            }
+        }
+
+        public void OffContactStopRecord(object sender, ContactEventArgs e)
+        {
+            capture.OffContactHelper();
+
+            writeToCSV();
         }
 
         //Draw method that adds contact analytics to the screen
@@ -206,27 +255,24 @@ namespace PassSwipe
             //regx the string with commas
             //add string to csv
             //sb.AppendLine(string.Join(delimiter, output));
-            for (int i = 0; i > this.touchManager.Count; i++)
+
+            sb.AppendLine("Firing ContactRemove");
+
+            for (int i = 0; i < this.touchManager.Count; i++)
             {
                 string[] strOut = {
-                                    (touchManager[i].xPosition).ToString()
+                                    (touchManager[i].xPosition).ToString(),
+                                    (touchManager[i].yPosition).ToString(),
+                                    (touchManager[i].majorFingerAxis).ToString(),
+                                    (touchManager[i].minorFingerAxis).ToString(),
+                                    (touchManager[i].fingerOrientation).ToString()
                                   };
                 sb.AppendLine(string.Join(delimiter, strOut));
-            }
+            }            
                 
             File.AppendAllText(filePath, sb.ToString());
 
-            //key for the output
-            // UserID, xPosition, yPosition, majorAxis, minorAxis, orientation, timestamp (in milliseconds)
-            /* string[] output = {"1",
-                              "test",
-                              xpos.ToString(), 
-                              ypos.ToString(), 
-                              majorAxis.ToString(),
-                              minorAxis.ToString(),
-                              orientation.ToString()
-                              }; */
-            }
+        }
             
         /// <summary>
         /// Load your graphics content.
@@ -272,25 +318,29 @@ namespace PassSwipe
                                                   orientation));
 
 
-                if (capture.returnMetrics() != null)
+                if (returnMetrics() != null)
                 {
-                    if (capture.processedTexture == null)
+                    if (processedTexture == null)
                     {
-                        capture.processedByteArray = new byte[capture.returnMetrics().Width * capture.returnMetrics().Height];
+                        processedByteArray = new byte[returnMetrics().Width * returnMetrics().Height];
 
-                        capture.processedTexture = new Texture2D(graphics.GraphicsDevice,
-                                                              capture.returnMetrics().Width,
-                                                              capture.returnMetrics().Height,
-                                                              1,
-                                                              TextureUsage.AutoGenerateMipMap,
-                                                              SurfaceFormat.Luminance8);
+                        processedTexture = new Texture2D(graphics.GraphicsDevice,
+                                                         returnMetrics().Width,
+                                                         returnMetrics().Height,
+                                                         1,
+                                                         TextureUsage.AutoGenerateMipMap,
+                                                         SurfaceFormat.Luminance8);
 
                         graphics.GraphicsDevice.Textures[0] = null;
                     }
 
                     else
                     {
-                        capture.Update(gameTime);
+                        processedTexture.SetData<Byte>(this.processedByteArray,
+                                            0,
+                                            normalizedMetrics.Width * normalizedMetrics.Height,
+                                            SetDataOptions.Discard
+                                            );
                     }
                 }
             }
@@ -319,7 +369,18 @@ namespace PassSwipe
             spriteBatch.Begin();
 
             //Draw screen capture of touch dot (located in SurfaceCapture class)
-            capture.Draw(this.spriteBatch);
+            if (processedTexture != null)
+            {
+                spriteBatch.Draw(processedTexture,
+                                 spriteOrigin,
+                                 null,
+                                 new Microsoft.Xna.Framework.Graphics.Color(81, 81, 81),
+                                 0f,
+                                 spriteOrigin,
+                                 scale,
+                                 SpriteEffects.FlipVertically,
+                                 0f);
+            }
             
             //Draw text analytics
             DrawText();

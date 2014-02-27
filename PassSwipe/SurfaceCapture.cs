@@ -27,58 +27,37 @@ namespace PassSwipe
         public Texture2D processedTexture;
 
         //normalized raw images
+        /*
         public byte[] normalizedImage;
         private ImageMetrics normalizedMetrics;
         Vector2 spriteOrigin = new Vector2(0f, 0f);
         public byte[] processedByteArray;
         bool isTouching;
+         */
 
         Image<Gray, byte> canny;
         Image<Gray, byte> emguCvImage;
 
         //feature sets
-        DateTime startRecordTime;
-        DateTime endRecordTime;
+        public DateTime startRecordTime;
+        public DateTime endRecordTime;
         public TimeSpan totalTimeElapsed = new TimeSpan(0, 0, 0, 0, 0);
 
-        public void OnContactStartRecord(object sender, ContactEventArgs e)
+        //helper method for OnContact method
+        public void OnContactHelper()
         {
-            isTouching = true;
             startRecordTime = System.DateTime.Now;
         }
 
-        public void OnContactRecordGesture(object sender, FrameReceivedEventArgs e)
+        //helper method for OnContactRecordGesture method
+        public void OnContactRecordHelper(byte[] pnormImg, ImageMetrics pimgMet)
         {
-            if (isTouching)
-            {
-                if (normalizedImage == null)
-                {
-                    e.TryGetRawImage(
-                        ImageType.Normalized,
-                        0, 0,
-                        InteractiveSurface.DefaultInteractiveSurface.Width,
-                        InteractiveSurface.DefaultInteractiveSurface.Height,
-                        out normalizedImage,
-                        out normalizedMetrics);
-                }
-                else //updates raw image data
-                {
-                    e.UpdateRawImage(
-                        ImageType.Normalized,
-                        normalizedImage,
-                        0, 0,
-                        InteractiveSurface.DefaultInteractiveSurface.Width,
-                        InteractiveSurface.DefaultInteractiveSurface.Height);
-                }
+            emguCvImage = CreateEmguCvImage(pnormImg, pimgMet);
 
-                //create img
-                emguCvImage = CreateEmguCvImage(normalizedImage, normalizedMetrics);
-
-                processedByteArray = processImage(emguCvImage);
-            }
+            processedByteArray = processImage(emguCvImage);
         }
 
-        public void OffContactStopRecord(object sender, ContactEventArgs e)
+        public void OffContactHelper()
         {
             endRecordTime = System.DateTime.Now;
 
@@ -86,8 +65,6 @@ namespace PassSwipe
             {
                 totalTimeElapsed = endRecordTime.Subtract(startRecordTime);
             }
-
-            writeToCSV();
         }
 
         //basic image processing algorithm
@@ -104,38 +81,6 @@ namespace PassSwipe
         {
             //BUG 1-2-14: This returns with a NullReferenceException 75% of the time, but 25% of the time it runs. What?
             return new Image<Gray, byte>(metrics.Width, metrics.Height) { Bytes = image };
-        }
-
-        public ImageMetrics returnMetrics()
-        {
-            return normalizedMetrics;
-        }
-
-        public void Update(GameTime gameTime)
-        {
-            processedTexture.SetData<Byte>(this.processedByteArray,
-                                            0,
-                                            normalizedMetrics.Width * normalizedMetrics.Height,
-                                            SetDataOptions.Discard
-                                            );
-        }
-
-        //Draw our sprite on the table
-        public void Draw(SpriteBatch tsb)
-        {
-            // Adds the rawimage sprite to Spritebatch for drawing.
-            if (processedTexture != null)
-            {
-                tsb.Draw(processedTexture,
-                                spriteOrigin,
-                                null,
-                                new Microsoft.Xna.Framework.Graphics.Color(81, 81, 81),
-                                0f,
-                                spriteOrigin,
-                                scale,
-                                SpriteEffects.FlipVertically,
-                                0f);
-            }
         }
 
     }
