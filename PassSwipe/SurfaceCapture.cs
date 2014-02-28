@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Audio;
@@ -38,14 +39,21 @@ namespace PassSwipe
         Image<Gray, byte> canny;
         Image<Gray, byte> emguCvImage;
 
+        public Stopwatch timer = new Stopwatch();
         //feature sets
         public DateTime startRecordTime;
         public DateTime endRecordTime;
         public TimeSpan totalTimeElapsed = new TimeSpan(0, 0, 0, 0, 0);
 
+        public long totalMillisec;
+
+        public double xyRatio = 0.0;
+
         //helper method for OnContact method
         public void OnContactHelper()
         {
+            timer.Reset();
+            timer.Start();
             startRecordTime = System.DateTime.Now;
         }
 
@@ -57,14 +65,38 @@ namespace PassSwipe
             processedByteArray = processImage(emguCvImage);
         }
 
+        //helper methods for OffContact method
+        //spot where total time as a fea
         public void OffContactHelper()
         {
-            endRecordTime = System.DateTime.Now;
+            timer.Stop();
+            totalMillisec = timer.ElapsedMilliseconds;
+            //endRecordTime = System.DateTime.Now;
 
+            /*
             if ((startRecordTime != null) && (endRecordTime != null))
             {
                 totalTimeElapsed = endRecordTime.Subtract(startRecordTime);
             }
+             */
+        }
+
+        //calculates x:y ratio as a feature for the data set
+        public void calculateRatio(List<SurfaceTouch> pTouchList)
+        {
+            List<double> xValues = new List<double>();
+            List<double> yValues = new List<double>();
+
+            for (int i = 0; i < pTouchList.Count; i++)
+            {
+                xValues.Add(pTouchList[i].xPosition);
+                yValues.Add(pTouchList[i].yPosition);
+            }
+
+            double totalX = xValues.Max() - xValues.Min();
+            double totalY = yValues.Max() - yValues.Min();
+
+            xyRatio = totalX / totalY;
         }
 
         //basic image processing algorithm

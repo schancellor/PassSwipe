@@ -12,14 +12,16 @@ namespace PassSwipe
         public float majorFingerAxis;
         public float minorFingerAxis;
         public float fingerOrientation;
+        public long timeInMillisecond;
 
-        public SurfaceTouch(double pXPos, double pYPos, float pMajor, float pMinor, float pOrien)
+        public SurfaceTouch(double pXPos, double pYPos, float pMajor, float pMinor, float pOrien, long pMilliTime)
         {
             xPosition = pXPos;
             yPosition = pYPos;
             majorFingerAxis = pMajor;
             minorFingerAxis = pMinor;
             fingerOrientation = pOrien;
+            pMilliTime = timeInMillisecond;
         }
     }
 }

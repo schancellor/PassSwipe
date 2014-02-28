@@ -60,6 +60,8 @@ namespace PassSwipe
         float minorAxis = 0.0f;
         float orientation = 0.0f;
 
+        int totalGestureNum = 0;
+
         private List<SurfaceTouch> touchManager = new List<SurfaceTouch>();
 
         // application state: Activated, Previewed, Deactivated,
@@ -190,9 +192,6 @@ namespace PassSwipe
         public void OnContactStartRecord(object sender, ContactEventArgs e)
         {
             isTouching = true;
-            capture.startRecordTime = System.DateTime.Now;
-
-            isTouching = true;
             capture.OnContactHelper();
         }
 
@@ -228,7 +227,21 @@ namespace PassSwipe
         {
             capture.OffContactHelper();
 
-            writeToCSV();
+            if (capture.totalMillisec > 800)
+            {
+                writeToCSV();
+
+                capture.calculateRatio(touchManager);
+
+                advanceGesture();
+            }
+        }
+
+        public void advanceGesture()
+        {
+            totalGestureNum++;
+
+            touchManager.Clear();
         }
 
         //Draw method that adds contact analytics to the screen
@@ -240,12 +253,14 @@ namespace PassSwipe
             spriteBatch.DrawString(font, "Major Axis: " + majorAxis, new Vector2(20, 115), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Minor Axis: " + minorAxis, new Vector2(20, 155), Microsoft.Xna.Framework.Graphics.Color.White);
             spriteBatch.DrawString(font, "Orientation: " + orientation, new Vector2(20, 185), Microsoft.Xna.Framework.Graphics.Color.White);
-            spriteBatch.DrawString(font, "Total Gesture Time: " + capture.totalTimeElapsed.TotalMilliseconds, new Vector2(20, 245), Microsoft.Xna.Framework.Graphics.Color.White);
+            spriteBatch.DrawString(font, "Total Gesture Time: " + capture.totalMillisec, new Vector2(20, 245), Microsoft.Xna.Framework.Graphics.Color.White);
+
+            spriteBatch.DrawString(font, "X-Y Ratio: " + capture.xyRatio, new Vector2(20, 285), Microsoft.Xna.Framework.Graphics.Color.White);
         }
 
         public void writeToCSV()
         {
-            string filePath = @"C:\Users\faculty\Desktop\text.csv";  
+            string filePath = @"C:\Users\faculty\Desktop\test-SNC.csv";  
             string delimiter = ",";
 
             StringBuilder sb = new StringBuilder();
@@ -254,18 +269,20 @@ namespace PassSwipe
             //take each object and push it into a string
             //regx the string with commas
             //add string to csv
-            //sb.AppendLine(string.Join(delimiter, output));
-
-            sb.AppendLine("Firing ContactRemove");
+            sb.AppendLine("ContactRemove");
 
             for (int i = 0; i < this.touchManager.Count; i++)
             {
+                //order is the following
                 string[] strOut = {
+                                    "0",
+                                    (totalGestureNum.ToString()),
                                     (touchManager[i].xPosition).ToString(),
                                     (touchManager[i].yPosition).ToString(),
                                     (touchManager[i].majorFingerAxis).ToString(),
                                     (touchManager[i].minorFingerAxis).ToString(),
-                                    (touchManager[i].fingerOrientation).ToString()
+                                    (touchManager[i].fingerOrientation).ToString(),
+                                    (capture.timer.ElapsedMilliseconds).ToString()
                                   };
                 sb.AppendLine(string.Join(delimiter, strOut));
             }            
@@ -315,7 +332,8 @@ namespace PassSwipe
                                                   ypos, 
                                                   majorAxis, 
                                                   minorAxis, 
-                                                  orientation));
+                                                  orientation,
+                                                  ((capture.timer.Elapsed).Milliseconds)));
 
 
                 if (returnMetrics() != null)
