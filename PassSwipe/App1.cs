@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-//using System.Linq;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-//using System.Threading;
 using Microsoft.Surface;
 using Microsoft.Surface.Core;
 using Microsoft.Xna.Framework;
@@ -59,6 +57,7 @@ namespace PassSwipe
         float majorAxis = 0.0f;
         float minorAxis = 0.0f;
         float orientation = 0.0f;
+        long elapsedTime = 0;
 
         int totalGestureNum = 0;
 
@@ -237,6 +236,11 @@ namespace PassSwipe
             }
         }
 
+        /// <summary>
+        /// A small helper method that advances the number of gestures executed in a single
+        /// run of the program. Also clears the touchManager list after each completed gesture
+        /// NOTE: Only runs if a gesture is longer than 800 milliseconds
+        /// </summary>
         public void advanceGesture()
         {
             totalGestureNum++;
@@ -260,7 +264,7 @@ namespace PassSwipe
 
         public void writeToCSV()
         {
-            string filePath = @"C:\Users\faculty\Desktop\test-SNC.csv";  
+            string filePath = @"C:\Users\faculty\Desktop\test-NEW.csv";  
             string delimiter = ",";
 
             StringBuilder sb = new StringBuilder();
@@ -269,11 +273,20 @@ namespace PassSwipe
             //take each object and push it into a string
             //regx the string with commas
             //add string to csv
-            sb.AppendLine("ContactRemove");
+            sb.AppendLine("ContactStart");
 
             for (int i = 0; i < this.touchManager.Count; i++)
             {
                 //order is the following
+                /* 0 - in theory represents the user (not implemented yet)
+                 * gesture number touch is association
+                 * x position
+                 * y position
+                 * major finger axis
+                 * minor finger axis
+                 * finger orientation
+                 * timestamp for that touch
+                 */
                 string[] strOut = {
                                     "0",
                                     (totalGestureNum.ToString()),
@@ -282,7 +295,7 @@ namespace PassSwipe
                                     (touchManager[i].majorFingerAxis).ToString(),
                                     (touchManager[i].minorFingerAxis).ToString(),
                                     (touchManager[i].fingerOrientation).ToString(),
-                                    (capture.timer.ElapsedMilliseconds).ToString()
+                                    (touchManager[i].timeInMillisecond).ToString()
                                   };
                 sb.AppendLine(string.Join(delimiter, strOut));
             }            
@@ -327,13 +340,14 @@ namespace PassSwipe
                 majorAxis = contacts[0].MajorAxis;
                 minorAxis = contacts[0].MinorAxis;
                 orientation = contacts[0].Orientation;
+                elapsedTime = capture.timer.ElapsedMilliseconds;
 
                 touchManager.Add(new SurfaceTouch(xpos, 
                                                   ypos, 
                                                   majorAxis, 
                                                   minorAxis, 
                                                   orientation,
-                                                  ((capture.timer.Elapsed).Milliseconds)));
+                                                  elapsedTime));
 
 
                 if (returnMetrics() != null)

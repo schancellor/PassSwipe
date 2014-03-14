@@ -21,7 +21,7 @@ namespace PassSwipe
             majorFingerAxis = pMajor;
             minorFingerAxis = pMinor;
             fingerOrientation = pOrien;
-            pMilliTime = timeInMillisecond;
+            timeInMillisecond = pMilliTime;
         }
     }
 }
