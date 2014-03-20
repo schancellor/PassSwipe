@@ -15,8 +15,6 @@ namespace PassSwipe
         int trainingSampleCount = 0;
         List<SurfaceTouch> csvTouchList = new List<SurfaceTouch>();
 
-
-
         private void csvToList(string pFileName)
         {
             StreamReader textReader = new StreamReader(File.OpenRead(pFileName));

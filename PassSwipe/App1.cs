@@ -264,7 +264,7 @@ namespace PassSwipe
 
         public void writeToCSV()
         {
-            string filePath = @"C:\Users\faculty\Desktop\test-NEW.csv";  
+            string filePath = @"C:\Users\faculty\Desktop\test-3-19.csv";  
             string delimiter = ",";
 
             StringBuilder sb = new StringBuilder();
@@ -277,7 +277,7 @@ namespace PassSwipe
 
             for (int i = 0; i < this.touchManager.Count; i++)
             {
-                //order is the following
+                //order:
                 /* 0 - in theory represents the user (not implemented yet)
                  * gesture number touch is association
                  * x position
