@@ -30,7 +30,7 @@ namespace PassSwipe
         Image<Gray, byte> canny;
         Image<Gray, byte> emguCvImage;
 
-        public Stopwatch timer = new Stopwatch();
+        public static Stopwatch timer = new Stopwatch();
         public long totalMillisec;
 
         public double xyRatio = 0.0;
@@ -46,6 +46,7 @@ namespace PassSwipe
         {
             timer.Reset();
             timer.Start();
+            //totalMillisec = 0;
         }
 
         //helper method for OnContactRecordGesture method

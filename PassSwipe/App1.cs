@@ -63,6 +63,8 @@ namespace PassSwipe
 
         private List<SurfaceTouch> touchManager = new List<SurfaceTouch>();
 
+        private static readonly Object obj = new Object();
+
         // application state: Activated, Previewed, Deactivated,
         // start in Activated state
         private bool isApplicationActivated = true;
@@ -191,6 +193,7 @@ namespace PassSwipe
         public void OnContactStartRecord(object sender, ContactEventArgs e)
         {
             isTouching = true;
+            touchManager.Clear();
             capture.OnContactHelper();
         }
 
@@ -228,7 +231,10 @@ namespace PassSwipe
 
             if (capture.totalMillisec > 800)
             {
-                writeToCSV();
+                lock (obj)
+                {
+                    writeToCSV();
+                }
 
                 capture.calculateRatio(touchManager);
 
@@ -244,8 +250,6 @@ namespace PassSwipe
         public void advanceGesture()
         {
             totalGestureNum++;
-
-            touchManager.Clear();
         }
 
         //Draw method that adds contact analytics to the screen
@@ -264,7 +268,7 @@ namespace PassSwipe
 
         public void writeToCSV()
         {
-            string filePath = @"C:\Users\faculty\Desktop\test-3-19.csv";  
+            string filePath = @"C:\Users\faculty\Desktop\testSNC-3-20.csv";  
             string delimiter = ",";
 
             StringBuilder sb = new StringBuilder();
@@ -340,7 +344,7 @@ namespace PassSwipe
                 majorAxis = contacts[0].MajorAxis;
                 minorAxis = contacts[0].MinorAxis;
                 orientation = contacts[0].Orientation;
-                elapsedTime = capture.timer.ElapsedMilliseconds;
+                elapsedTime = SurfaceCapture.timer.ElapsedMilliseconds;
 
                 touchManager.Add(new SurfaceTouch(xpos, 
                                                   ypos, 
@@ -348,7 +352,6 @@ namespace PassSwipe
                                                   minorAxis, 
                                                   orientation,
                                                   elapsedTime));
-
 
                 if (returnMetrics() != null)
                 {

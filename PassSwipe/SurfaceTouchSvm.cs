@@ -5,7 +5,6 @@ using System.Text;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.ML;
-using Emgu.CV.Structure;
 using System.IO;
 
 namespace PassSwipe
