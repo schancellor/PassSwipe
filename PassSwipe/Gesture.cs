@@ -27,9 +27,11 @@ namespace PassSwipe
             numData = processedList;
         }
 
+        /*
         public Gesture (List<SurfaceTouch> touchList) {
-            numData = Array.ConvertAll(touchList, new Converter<string, double>(Double.Parse));
+            numData = 
         }
+         */
 
         public void runMetrics()
         {
