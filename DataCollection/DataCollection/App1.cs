@@ -19,7 +19,7 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using System.Text;
 
-namespace PassSwipe
+namespace DataCollection
 {
     /// <summary>
     /// This is the main type for your application.
@@ -227,14 +227,14 @@ namespace PassSwipe
 
         /// <summary>
         /// Controls what occurs when the user stops a gesture
-        /// NOTE: This event fires more than it ought. So we have it ignore any data shorter than 600 millisecondss
+        /// NOTE: This event fires more than it ought. So we have it ignore any data shorter than 600 millisecondsw
         ///
         /// </summary>
         public void OffContactStopRecord(object sender, ContactEventArgs e)
         {
             capture.OffContactHelper();
 
-            if (capture.totalMillisec > 600)
+            if (capture.totalMillisec > 800)
             {
                 lock (obj)
                 {

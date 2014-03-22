@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace PassSwipe
+namespace SVMManager
 {
     class Gesture
     {
@@ -14,7 +14,7 @@ namespace PassSwipe
 
         public Gesture(string csvLocation)
         {
-            numData = csvToDoubleList(csvLocation);
+            numData = csvToDoubleList(csvLocation);   
         }
 
         public Gesture(List<string[]> dividedList)
@@ -26,12 +26,6 @@ namespace PassSwipe
         {
             numData = processedList;
         }
-
-        /*
-        public Gesture (List<SurfaceTouch> touchList) {
-            numData = 
-        }
-        */
 
         public void runMetrics()
         {
@@ -116,3 +110,4 @@ namespace PassSwipe
 
     }
 }
+

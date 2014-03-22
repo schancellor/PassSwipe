@@ -18,7 +18,7 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 
-namespace PassSwipe
+namespace DataCollection
 {
     class SurfaceCapture : App1
     {
