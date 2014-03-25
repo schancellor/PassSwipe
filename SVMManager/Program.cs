@@ -109,6 +109,8 @@ namespace SVMManager
                     PointF p1 = new PointF(v[0], v[1]);
                     img.Draw(new CircleF(p1, 4), new Bgr(255, 255, 128), 2);
                 }
+
+                model.Save(@"C:\Users\faculty\Desktop\svm-function.xml");
             }
 
             // display the original training samples

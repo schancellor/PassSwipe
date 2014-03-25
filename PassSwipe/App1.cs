@@ -17,6 +17,7 @@ using Microsoft.Xna.Framework.Storage;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using Emgu.CV.ML;
 using System.Text;
 
 namespace PassSwipe
@@ -63,6 +64,10 @@ namespace PassSwipe
 
         private List<SurfaceTouch> touchManager = new List<SurfaceTouch>();
 
+        SVM svmModel = new SVM();
+        
+        svmModel.Load(@"C:\Users\faculty\Desktop\svm-function.xml");
+
         private static readonly Object obj = new Object();
 
         // application state: Activated, Previewed, Deactivated,
@@ -73,7 +78,6 @@ namespace PassSwipe
         /// <summary>
         /// The graphics device manager for the application.
         /// </summary>
-
         protected GraphicsDeviceManager Graphics
         {
             get { return graphics; }
@@ -228,7 +232,6 @@ namespace PassSwipe
         /// <summary>
         /// Controls what occurs when the user stops a gesture
         /// NOTE: This event fires more than it ought. So we have it ignore any data shorter than 600 millisecondss
-        ///
         /// </summary>
         public void OffContactStopRecord(object sender, ContactEventArgs e)
         {
@@ -245,6 +248,28 @@ namespace PassSwipe
 
                 advanceGesture();
             }
+
+            Gesture gnew = stListToGesture(touchManager);
+            
+            float result = predictGesture(gnew);
+
+        }
+
+        public float predictGesture(Gesture g)
+        {
+            g.runMetrics();
+            
+            double[] processedG = (g.returnMetrics()).ToArray();
+
+            Matrix<float> matrixG = new Matrix<float>(1,2);
+
+            for (int j = 0; j < processedG.Length; j++)
+            {
+                matrixG[(j), 0] = (float)processedG[0] * 150;
+                matrixG[(j), 1] = (float)processedG[1] / 4;
+            }
+
+            return svmModel.Predict(matrixG);
         }
 
         /// <summary>
@@ -255,6 +280,27 @@ namespace PassSwipe
         public void advanceGesture()
         {
             totalGestureNum++;
+        }
+
+        //convert a list of SurfaceTouch to a Gesture
+        private Gesture stListToGesture(List<SurfaceTouch> slList)
+        {
+            List<double[]> temp = new List<double[]>();
+
+            foreach (SurfaceTouch s in slList)
+            {
+                temp.Add(new double[] { 0,
+                                        0,
+                                        s.xPosition,
+                                        s.yPosition,
+                                        s.majorFingerAxis,
+                                        s.minorFingerAxis,
+                                        s.fingerOrientation,
+                                        s.timeInMillisecond
+                                        });
+            }
+
+            return new Gesture(temp);
         }
 
         //Draw method that adds contact analytics to the screen
