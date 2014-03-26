@@ -59,14 +59,11 @@ namespace PassSwipe
         float minorAxis = 0.0f;
         float orientation = 0.0f;
         long elapsedTime = 0;
+        string gestureOwner;
 
         int totalGestureNum = 0;
 
         private List<SurfaceTouch> touchManager = new List<SurfaceTouch>();
-
-        SVM svmModel = new SVM();
-        
-        svmModel.Load(@"C:\Users\faculty\Desktop\svm-function.xml");
 
         private static readonly Object obj = new Object();
 
@@ -247,15 +244,29 @@ namespace PassSwipe
                 capture.calculateRatio(touchManager);
 
                 advanceGesture();
+
+                Gesture gnew = stListToGesture(touchManager);
+                float result;
+
+                using (SVM svm = new SVM())
+                {
+                    svm.Load(@"C:\Users\faculty\Desktop\svm-function.xml");
+
+                    result = svm.Predict(getProcessedGesture(gnew));
+                }
+
+                if (result == 1)
+                {
+                    gestureOwner = "Evan";
+                }
+                else
+                {
+                    gestureOwner = "Stevie";
+                }
             }
-
-            Gesture gnew = stListToGesture(touchManager);
-            
-            float result = predictGesture(gnew);
-
         }
 
-        public float predictGesture(Gesture g)
+        public Matrix<float> getProcessedGesture(Gesture g)
         {
             g.runMetrics();
             
@@ -263,13 +274,10 @@ namespace PassSwipe
 
             Matrix<float> matrixG = new Matrix<float>(1,2);
 
-            for (int j = 0; j < processedG.Length; j++)
-            {
-                matrixG[(j), 0] = (float)processedG[0] * 150;
-                matrixG[(j), 1] = (float)processedG[1] / 4;
-            }
+            matrixG[0, 0] = (float)(processedG[0] * 150);
+            matrixG[0, 1] = (float)(processedG[1] / 4);
 
-            return svmModel.Predict(matrixG);
+            return matrixG;
         }
 
         /// <summary>
@@ -315,11 +323,13 @@ namespace PassSwipe
             spriteBatch.DrawString(font, "Total Gesture Time: " + capture.totalMillisec, new Vector2(20, 245), Microsoft.Xna.Framework.Graphics.Color.White);
 
             spriteBatch.DrawString(font, "X-Y Ratio: " + capture.xyRatio, new Vector2(20, 285), Microsoft.Xna.Framework.Graphics.Color.White);
+
+            spriteBatch.DrawString(font, "Gesture Owner: " + gestureOwner, new Vector2(20, 385), Microsoft.Xna.Framework.Graphics.Color.White);
         }
 
         public void writeToCSV()
         {
-            string filePath = @"C:\Users\faculty\Desktop\testSNC-3-20.csv";  
+            string filePath = @"C:\Users\faculty\Desktop\testSNC-3-26.csv";  
             string delimiter = ",";
 
             StringBuilder sb = new StringBuilder();

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace PassSwipe
 {
-    class Gesture
+    public class Gesture
     {
         List<double[]> numData;
         double totalGestureTime;
@@ -26,12 +26,6 @@ namespace PassSwipe
         {
             numData = processedList;
         }
-
-        /*
-        public Gesture (List<SurfaceTouch> touchList) {
-            numData = 
-        }
-        */
 
         public void runMetrics()
         {
