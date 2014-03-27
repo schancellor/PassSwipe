@@ -209,6 +209,7 @@
     </Content>
     <Content Include="PassSwipe.xml" />
     <Content Include="Resources\touchDrop.jpg" />
+    <Content Include="whiteDotTransparent.png" />
     <Content Include="ZedGraph.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

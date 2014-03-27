@@ -67,6 +67,10 @@ namespace PassSwipe
 
         private static readonly Object obj = new Object();
 
+        Texture2D dotTexture;
+
+        Vector2 position = new Vector2(2000, 2000);
+
         // application state: Activated, Previewed, Deactivated,
         // start in Activated state
         private bool isApplicationActivated = true;
@@ -187,7 +191,7 @@ namespace PassSwipe
 
             // Register events
             contactTarget.ContactAdded += OnContactStartRecord;
-            contactTarget.FrameReceived += OnContactRecordGesture;
+            //contactTarget.FrameReceived += OnContactRecordGesture;
             contactTarget.ContactRemoved += OffContactStopRecord;
         }
 
@@ -198,6 +202,7 @@ namespace PassSwipe
             capture.OnContactHelper();
         }
 
+        /*
         public void OnContactRecordGesture(object sender, FrameReceivedEventArgs e)
         {
             if (isTouching)
@@ -225,6 +230,7 @@ namespace PassSwipe
                 capture.OnContactRecordHelper(normalizedImage, normalizedMetrics);
             }
         }
+         */
 
         /// <summary>
         /// Controls what occurs when the user stops a gesture
@@ -375,6 +381,8 @@ namespace PassSwipe
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             font = Content.Load<SpriteFont>("myFont");
+
+            dotTexture = Content.Load<Texture2D>("whiteDotTransparent");
             // TODO: Load any content
         }
 
@@ -413,6 +421,9 @@ namespace PassSwipe
                                                   orientation,
                                                   elapsedTime));
 
+                position = new Vector2(contacts[0].CenterX - 10, contacts[0].CenterY - 10);
+
+                /*
                 if (returnMetrics() != null)
                 {
                     if (processedTexture == null)
@@ -437,7 +448,7 @@ namespace PassSwipe
                                             SetDataOptions.Discard
                                             );
                     }
-                }
+                }*/
             }
 
             base.Update(gameTime);
@@ -463,6 +474,9 @@ namespace PassSwipe
 
             spriteBatch.Begin();
 
+            spriteBatch.Draw(dotTexture, position, Microsoft.Xna.Framework.Graphics.Color.White);
+
+            /*
             //Draw screen capture of touch dot (located in SurfaceCapture class)
             if (processedTexture != null)
             {
@@ -476,6 +490,7 @@ namespace PassSwipe
                                  SpriteEffects.FlipVertically,
                                  0f);
             }
+             */
             
             //Draw text analytics
             DrawText();
