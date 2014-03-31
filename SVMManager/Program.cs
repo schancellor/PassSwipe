@@ -26,8 +26,8 @@ namespace SVMManager
             trainSampleCount = (gestureListClass1.Count) + (gestureListClass2.Count); //set the sample count to the number of gestures we have available
 
             //create relevant matrices based on size of the gestureList
-            Matrix<float> sample = new Matrix<float>(1, 2); //a sample has 2 columns because of 2 features
-            Matrix<float> trainTestData = new Matrix<float>(trainSampleCount, 2);
+            Matrix<float> sample = new Matrix<float>(1, 16);
+            Matrix<float> trainTestData = new Matrix<float>(trainSampleCount, 16);
             Matrix<float> trainTestClasses = new Matrix<float>(trainSampleCount, 1);
 
             //GESTURE MATH INCOMING
@@ -47,13 +47,45 @@ namespace SVMManager
             for (int i = 0; i < gestureListClass1.Count; i++)
             {
                 double[] gMetrics = (gestureListClass1[i].returnMetrics()).ToArray();
+                /*
+                 * //add gestures to list
+                        temp.Add(xyRatio); //[0]
+                        temp.Add(totalGestureTime); //[1]
+                        temp.Add(majorAvg); //[2]
+                        temp.Add(minorAvg); //[3]
 
-                /*order of values
-                 * list[0] - xyRatio
-                 * list[1] - totalGestureTime
+                        temp.Add(avgXVelo); //[4]
+                        temp.Add(avgYVelo); //[5]
+
+                        temp.Add(majorVariance); //[6]
+                        temp.Add(minorVariance); //[7]
+
+                        //add substrokes
+                        temp.Add(firstVeloMag); //[8]
+                        temp.Add(firstVeloDir); //[9]
+                        temp.Add(secondVeloMag); //[10]
+                        temp.Add(secondVeloDir); //[11]
+                        temp.Add(thirdVeloMag); //[12]
+                        temp.Add(thirdVeloDir); //[13]
+                        temp.Add(fourthVeloMag); //[14]
+                        temp.Add(fourthVeloDir); //[15]
                  */
-                trainTestData[i, 0] = ((float)gMetrics[0]) * 150;
-                trainTestData[i, 1] = ((float)gMetrics[1]) / 4;
+                trainTestData[i, 0] = ((float)gMetrics[0]) * 150; //xy ratio
+                trainTestData[i, 1] = ((float)gMetrics[1]) / 4; //totalGestureTime
+                trainTestData[i, 2] = ((float)gMetrics[2]);
+                trainTestData[i, 3] = ((float)gMetrics[3]);
+                trainTestData[i, 4] = ((float)gMetrics[4]);
+                trainTestData[i, 5] = ((float)gMetrics[5]);
+                trainTestData[i, 6] = ((float)gMetrics[6]);
+                trainTestData[i, 7] = ((float)gMetrics[7]);
+                trainTestData[i, 8] = ((float)gMetrics[8]);
+                trainTestData[i, 9] = ((float)gMetrics[9]);
+                trainTestData[i, 10] = ((float)gMetrics[10]);
+                trainTestData[i, 11] = ((float)gMetrics[11]);
+                trainTestData[i, 12] = ((float)gMetrics[12]);
+                trainTestData[i, 13] = ((float)gMetrics[13]);
+                trainTestData[i, 14] = ((float)gMetrics[14]);
+                trainTestData[i, 15] = ((float)gMetrics[15]);
             }
 
             Matrix<float> trainTestData1 = trainTestData.GetRows(0, gestureListClass1.Count, 1);
@@ -64,6 +96,20 @@ namespace SVMManager
 
                 trainTestData[(j + gestureListClass1.Count), 0] = (float)gMetrics[0] * 150;
                 trainTestData[(j + gestureListClass1.Count), 1] = ((float)gMetrics[1]) / 4;
+                trainTestData[(j + gestureListClass1.Count), 2] = ((float)gMetrics[2]);
+                trainTestData[(j + gestureListClass1.Count), 3] = ((float)gMetrics[3]);
+                trainTestData[(j + gestureListClass1.Count), 4] = ((float)gMetrics[4]);
+                trainTestData[(j + gestureListClass1.Count), 5] = ((float)gMetrics[5]);
+                trainTestData[(j + gestureListClass1.Count), 6] = ((float)gMetrics[6]);
+                trainTestData[(j + gestureListClass1.Count), 7] = ((float)gMetrics[7]);
+                trainTestData[(j + gestureListClass1.Count), 8] = ((float)gMetrics[8]);
+                trainTestData[(j + gestureListClass1.Count), 9] = ((float)gMetrics[9]);
+                trainTestData[(j + gestureListClass1.Count), 10] = ((float)gMetrics[10]);
+                trainTestData[(j + gestureListClass1.Count), 11] = ((float)gMetrics[11]);
+                trainTestData[(j + gestureListClass1.Count), 12] = ((float)gMetrics[12]);
+                trainTestData[(j + gestureListClass1.Count), 13] = ((float)gMetrics[13]);
+                trainTestData[(j + gestureListClass1.Count), 14] = ((float)gMetrics[14]);
+                trainTestData[(j + gestureListClass1.Count), 15] = ((float)gMetrics[15]);
             }
 
             Matrix<float> trainTestData2 = trainTestData.GetRows(gestureListClass1.Count, trainSampleCount, 1);
@@ -110,7 +156,7 @@ namespace SVMManager
                     img.Draw(new CircleF(p1, 4), new Bgr(255, 255, 128), 2);
                 }
 
-                model.Save(@"C:\Users\faculty\Desktop\svm-function.xml");
+                model.Save(@"C:\Users\faculty\Desktop\svm-function3coord16.xml");
             }
 
             // display the original training samples

@@ -256,7 +256,7 @@ namespace PassSwipe
 
                 using (SVM svm = new SVM())
                 {
-                    svm.Load(@"C:\Users\faculty\Desktop\svm-function.xml");
+                    svm.Load(@"C:\Users\faculty\Desktop\svm-function3coord16.xml");
 
                     result = svm.Predict(getProcessedGesture(gnew));
                 }
@@ -278,10 +278,24 @@ namespace PassSwipe
             
             double[] processedG = (g.returnMetrics()).ToArray();
 
-            Matrix<float> matrixG = new Matrix<float>(1,2);
+            Matrix<float> matrixG = new Matrix<float>(1,16);
 
             matrixG[0, 0] = (float)(processedG[0] * 150);
             matrixG[0, 1] = (float)(processedG[1] / 4);
+            matrixG[0, 2] = (float)(processedG[2]);
+            matrixG[0, 3] = (float)(processedG[3] );
+            matrixG[0, 4] = (float)(processedG[4] );
+            matrixG[0, 5] = (float)(processedG[5] );
+            matrixG[0, 6] = (float)(processedG[6] );
+            matrixG[0, 7] = (float)(processedG[7] );
+            matrixG[0, 8] = (float)(processedG[8] );
+            matrixG[0, 9] = (float)(processedG[9] );
+            matrixG[0, 10] = (float)(processedG[10] );
+            matrixG[0, 11] = (float)(processedG[11] );
+            matrixG[0, 12] = (float)(processedG[12] );
+            matrixG[0, 13] = (float)(processedG[13] );
+            matrixG[0, 14] = (float)(processedG[14] );
+            matrixG[0, 15] = (float)(processedG[15] );
 
             return matrixG;
         }
